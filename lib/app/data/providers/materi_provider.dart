@@ -28,4 +28,8 @@ class MateriProvider extends DioClient {
   Future<Response> fetchTugas(id) async {
     return await get('${EndPoint.indextugasguru}/$id');
   }
+
+  Future<Response> fetchDetailTugas(idTugas) async {
+    return await get('${EndPoint.detailtugas}/$idTugas');
+  }
 }

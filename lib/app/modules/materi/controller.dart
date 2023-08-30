@@ -5,6 +5,7 @@ import 'package:elearning/app/core/values/show_loading.dart';
 import 'package:elearning/app/core/values/show_snackbars.dart';
 import 'package:elearning/app/data/models/materi.dart';
 import 'package:elearning/app/data/models/tugas.dart';
+import 'package:elearning/app/data/models/tugas_siswa.dart';
 import 'package:elearning/app/data/providers/materi_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -30,6 +31,11 @@ class MateriController extends GetxController {
   final tugas = <Tugas>[].obs;
   final tugasLoading = true.obs;
 
+  final idTugas = ''.obs;
+  final detailTugas = Rx<Tugas?>(null);
+  final tugasSiswa = <TugasSiswa>[].obs;
+  final detailTugasLoading = false.obs;
+
   final formKeyTambahMateriGuru = GlobalKey<FormState>().obs;
   final judulTambahController = TextEditingController().obs;
   final subjudulTambahController = TextEditingController().obs;
@@ -49,8 +55,9 @@ class MateriController extends GetxController {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     role.value = sharedPreferences.getString('role') ?? '';
 
-    fetchMateriGuru();
     fetchTugas();
+    fetchMateriGuru();
+    // fetchDetailTugasGuru();
     super.onInit();
   }
 
@@ -182,13 +189,9 @@ class MateriController extends GetxController {
   Future<void> fetchTugas() async {
     try {
       final response = await materiProvider.fetchTugas(id.value);
-      final List<Tugas> body = role.value == 'siswa'
-          ? response.data['data']['tugas']
-          : response.data['data'] == null
-              ? []
-              : listTugasFromJson(jsonEncode(role.value == 'siswa'
-                  ? response.data['data']['tugas']
-                  : response.data['data']));
+      final List<Tugas> body = response.data['data'] == null
+          ? []
+          : listTugasFromJson(jsonEncode(response.data['data']));
 
       tugas.value = body;
     } on dio.DioException catch (e) {
@@ -201,6 +204,31 @@ class MateriController extends GetxController {
       }
     } finally {
       tugasLoading.value = false;
+      update();
+    }
+  }
+
+  Future<void> fetchDetailTugasGuru() async {
+    detailTugasLoading.value = true;
+    try {
+      final response = await materiProvider.fetchDetailTugas(idTugas.value);
+
+      detailTugas.value = tugasFromJson(jsonEncode(response.data['data']));
+      final List<TugasSiswa> body = response.data['data']['tugassiswa'] == null
+          ? []
+          : listTugasSiswaFromJson(
+              jsonEncode(response.data['data']['tugassiswa']));
+      tugasSiswa.value = body;
+    } on dio.DioException catch (e) {
+      if (e.response?.statusCode == 500) {
+        failedSnackbar(
+            'Fetching Detail Tugas Guru Failed', e.response?.data.toString() ?? '');
+      } else {
+        infoSnackbar(
+            'Fetching Detail Tugas Guru Failed', e.response?.data.toString() ?? '');
+      }
+    } finally {
+      detailTugasLoading.value = false;
       update();
     }
   }

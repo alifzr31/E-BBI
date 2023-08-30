@@ -13,6 +13,7 @@ class ListTugasGuru extends StatefulWidget {
 
 class _ListTugasGuruState extends State<ListTugasGuru> {
   final controller = Get.find<MateriController>();
+  final arguments = Get.arguments;
 
   @override
   void initState() {
@@ -37,11 +38,14 @@ class _ListTugasGuruState extends State<ListTugasGuru> {
                     formatter.format(tugas.endDate ?? DateTime(0000));
 
                 return BaseCardContent(
-                  author: tugas.siswa?.nama ?? '',
+                  author: arguments,
                   date: '$startDate - $endDate',
                   title: tugas.judul ?? '',
                   subtitle: tugas.subjudul ?? '',
-                  onPressed: () {},
+                  onPressed: () {
+                    controller.idTugas.value = tugas.id.toString();
+                    Get.toNamed('/detailtugasguru');
+                  },
                 );
               },
             ),

@@ -4,6 +4,7 @@ import 'package:elearning/app/modules/dashboard/binding.dart';
 import 'package:elearning/app/modules/dashboard/view.dart';
 import 'package:elearning/app/modules/materi/binding.dart';
 import 'package:elearning/app/modules/materi/guru/view.dart';
+import 'package:elearning/app/modules/materi/guru/widgets/detail_tugas.dart';
 import 'package:elearning/app/modules/materi/guru/widgets/edit_materiguru.dart';
 import 'package:elearning/app/modules/materi/guru/widgets/tambah_materiguru.dart';
 import 'package:elearning/app/modules/profile/binding.dart';
@@ -59,6 +60,11 @@ abstract class AppPages {
     GetPage(
       name: Routes.editmateriguru,
       page: () => const EditMateriGuru(),
+      binding: MateriBinding(),
+    ),
+    GetPage(
+      name: Routes.detailtugasguru,
+      page: () => const DetailTugasGuru(),
       binding: MateriBinding(),
     ),
     
