@@ -144,6 +144,14 @@ class _BodyDetailTugasState extends State<BodyDetailTugas>
                               //     }
                               //   },
                               // );
+                              return BaseCardTugasSiswa(
+                                author: tugassiswa.siswa?.nama ?? '',
+                                date: date,
+                                fileName: tugassiswa.fileTugasSiswa ?? '',
+                                onTapFile: () {},
+                                btnText: 'View Detail',
+                                onPressed: () {},
+                              );
                             },
                           ),
                         ],
