@@ -41,7 +41,12 @@ class BodyMyLesson extends StatelessWidget {
             color: Colors.grey.shade500,
           ),
           trailing: const Icon(Icons.arrow_forward_ios),
-          onTap: () {},
+          onTap: () {
+            final materiController =
+                Get.put(MateriController(materiProvider: MateriProvider()));
+            materiController.id.value = matpel.id.toString();
+            Get.toNamed('/materitugassiswa');
+          },
         );
       },
     );
@@ -70,13 +75,10 @@ class BodyMyLesson extends StatelessWidget {
             final materiController =
                 Get.put(MateriController(materiProvider: MateriProvider()));
             materiController.id.value = matpelGuru.id.toString();
-            if (controller.role.value == 'siswa') {
-            } else {
-              Get.toNamed(
-                '/materiguru',
-                arguments: controller.profileGuru.value?.nama,
-              );
-            }
+            Get.toNamed(
+              '/materiguru',
+              arguments: controller.profileGuru.value?.nama,
+            );
           },
         );
       },

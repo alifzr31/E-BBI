@@ -105,17 +105,21 @@ class BaseCardTugasSiswa extends StatelessWidget {
     required this.author,
     required this.date,
     required this.fileName,
-    required this.btnText,
+    required this.keterangan,
+    required this.nilai,
+    required this.button,
+    this.keteranganColor,
     this.onTapFile,
-    this.onPressed,
   }) : super(key: key);
 
   final String author;
   final String date;
   final String fileName;
-  final String btnText;
+  final String keterangan;
+  final String nilai;
+  final Widget button;
+  final Color? keteranganColor;
   final void Function()? onTapFile;
-  final void Function()? onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -129,6 +133,7 @@ class BaseCardTugasSiswa extends StatelessWidget {
         child: Column(
           children: [
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CircleAvatar(
                   child: const Icon(
@@ -153,6 +158,21 @@ class BaseCardTugasSiswa extends StatelessWidget {
                     ],
                   ),
                 ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      BaseText(
+                        text: keterangan,
+                        bold: FontWeight.w600,
+                        color: keteranganColor,
+                      ),
+                      BaseText(
+                        text: 'Nilai : $nilai',
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 20),
@@ -162,20 +182,19 @@ class BaseCardTugasSiswa extends StatelessWidget {
                 width: Get.width,
                 color: Colors.grey.withOpacity(0.3),
                 padding: const EdgeInsets.all(10),
-                child: BaseText(text: fileName),
+                child: Row(
+                  children: [
+                    Expanded(child: BaseText(text: fileName)),
+                    const Icon(
+                      Iconsax.document_download,
+                      color: baseColor,
+                    ),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 10),
-            SizedBox(
-              height: 30,
-              width: Get.width,
-              child: BaseButton(
-                bgColor: baseColor,
-                fgColor: Colors.white,
-                label: btnText,
-                onPressed: onPressed,
-              ),
-            )
+            button,
           ],
         ),
       ),

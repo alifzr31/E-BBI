@@ -69,7 +69,7 @@ class _DetailMateriGuruState extends State<DetailMateriGuru> {
                         ),
                         const SizedBox(width: 10),
                         if (DateTime.now()
-                            .isBefore(controller.detailMateri.value!.createdAt!))
+                            .isBefore(controller.detailMateri.value!.createdAt!) && controller.role.value == 'guru')
                           TextButton.icon(
                             onPressed: () {
                               Get.toNamed(
@@ -93,7 +93,9 @@ class _DetailMateriGuruState extends State<DetailMateriGuru> {
                       child: Column(
                         children: [
                           InkWell(
-                            onTap: () {},
+                            onTap: () {
+                              controller.downloadMateri(controller.detailMateri.value?.fileMateri);
+                            },
                             child: Container(
                               width: Get.width,
                               decoration: BoxDecoration(

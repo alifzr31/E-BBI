@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:elearning/app/core/utils/api_url.dart';
 import 'package:elearning/app/core/values/show_loading.dart';
 import 'package:elearning/app/core/values/show_snackbars.dart';
 import 'package:elearning/app/data/models/materi.dart';
@@ -9,6 +10,8 @@ import 'package:elearning/app/data/models/tugas_siswa.dart';
 import 'package:elearning/app/data/providers/materi_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:open_filex/open_filex.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dio/dio.dart' as dio;
 
@@ -19,10 +22,13 @@ class MateriController extends GetxController {
 
   final role = ''.obs;
   final materiGuru = <Materi>[].obs;
+  final materiSiswa = <Materi>[].obs;
   final materiGuruLoading = true.obs;
+  final materiSiswaLoading = true.obs;
   final id = ''.obs;
   final namaMatpel = ''.obs;
   final kelas = ''.obs;
+  final namaGuru = ''.obs;
 
   final detailMateri = Rx<Materi?>(null);
   final detailMateriLoading = false.obs;
@@ -35,6 +41,7 @@ class MateriController extends GetxController {
   final detailTugas = Rx<Tugas?>(null);
   final tugasSiswa = <TugasSiswa>[].obs;
   final detailTugasLoading = false.obs;
+  final detailTugasSiswa = Rx<TugasSiswa?>(null);
 
   final formKeyTambahMateriGuru = GlobalKey<FormState>().obs;
   final judulTambahController = TextEditingController().obs;
@@ -50,20 +57,39 @@ class MateriController extends GetxController {
   final fileMateriController = TextEditingController().obs;
   final fileMateri = Rx<File?>(null);
 
+  final formKeyBeriNilai = GlobalKey<FormState>().obs;
+  final nilaiController = TextEditingController().obs;
+
+  final formKeyStoreTugasGuru = GlobalKey<FormState>().obs;
+  final judulTugasController = TextEditingController().obs;
+  final subjudulTugasController = TextEditingController().obs;
+  final deskripsiTugasController = TextEditingController().obs;
+  final endTugasController = TextEditingController().obs;
+  final fileTugasController = TextEditingController().obs;
+  final fileTugas = Rx<File?>(null);
+
+  final fileTugasSiswa = Rx<File?>(null);
+  final fileTugasSiswaController = TextEditingController().obs;
+
   @override
   void onInit() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     role.value = sharedPreferences.getString('role') ?? '';
 
-    fetchTugas();
-    fetchMateriGuru();
-    // fetchDetailTugasGuru();
+    if (role.value == 'siswa') {
+      fetchMateriSiswa();
+      fetchTugasSiswa();
+    } else {
+      fetchTugasGuru();
+      fetchMateriGuru();
+    }
     super.onInit();
   }
 
   @override
   void onClose() {
     materiGuru.clear();
+    materiSiswa.clear();
     tugas.clear();
     judulTambahController.value.dispose();
     subjudulTambahController.value.dispose();
@@ -73,6 +99,14 @@ class MateriController extends GetxController {
     subjudulController.value.dispose();
     deskripsiController.value.dispose();
     fileMateriController.value.dispose();
+    nilaiController.value.dispose();
+    judulTugasController.value.dispose();
+    subjudulTugasController.value.dispose();
+    deskripsiTugasController.value.dispose();
+    endTugasController.value.dispose();
+    fileTugasController.value.dispose();
+    fileTugasSiswaController.value.dispose();
+    fileTugasSiswa.value?.delete();
     super.onClose();
   }
 
@@ -98,6 +132,33 @@ class MateriController extends GetxController {
       }
     } finally {
       materiGuruLoading.value = false;
+      update();
+    }
+  }
+
+  Future<void> fetchMateriSiswa() async {
+    try {
+      final response = await materiProvider.fetchMateriGuru(id.value);
+      namaMatpel.value = response.data['data']['matpel']['nama_matpel'];
+      kelas.value =
+          '${response.data['data']['kelas']['kls_angka']}${response.data['data']['kelas']['kls_huruf']}';
+      namaGuru.value = response.data['data']['guru']['nama'];
+
+      final List<Materi> body = response.data['data']['materi'] == null
+          ? []
+          : listMateriFromJson(jsonEncode(response.data['data']['materi']));
+
+      materiSiswa.value = body;
+    } on dio.DioException catch (e) {
+      if (e.response?.statusCode == 500) {
+        failedSnackbar(
+            'Fetching Materi Siswa Failed', e.response?.data.toString() ?? '');
+      } else {
+        infoSnackbar(
+            'Fetching Materi Siswa Failed', e.response?.data.toString() ?? '');
+      }
+    } finally {
+      materiSiswaLoading.value = false;
       update();
     }
   }
@@ -186,7 +247,7 @@ class MateriController extends GetxController {
     }
   }
 
-  Future<void> fetchTugas() async {
+  Future<void> fetchTugasGuru() async {
     try {
       final response = await materiProvider.fetchTugas(id.value);
       final List<Tugas> body = response.data['data'] == null
@@ -208,6 +269,28 @@ class MateriController extends GetxController {
     }
   }
 
+  Future<void> fetchTugasSiswa() async {
+    try {
+      final response = await materiProvider.fetchTugas(id.value);
+      final List<Tugas> body = response.data['data']['tugas'] == null
+          ? []
+          : listTugasFromJson(jsonEncode(response.data['data']['tugas']));
+
+      tugas.value = body;
+    } on dio.DioException catch (e) {
+      if (e.response?.statusCode == 500) {
+        failedSnackbar(
+            'Fetching Tugas Siswa Failed', e.response?.data.toString() ?? '');
+      } else {
+        infoSnackbar(
+            'Fetching Tugas Siswa Failed', e.response?.data.toString() ?? '');
+      }
+    } finally {
+      tugasLoading.value = false;
+      update();
+    }
+  }
+
   Future<void> fetchDetailTugasGuru() async {
     detailTugasLoading.value = true;
     try {
@@ -221,15 +304,148 @@ class MateriController extends GetxController {
       tugasSiswa.value = body;
     } on dio.DioException catch (e) {
       if (e.response?.statusCode == 500) {
-        failedSnackbar(
-            'Fetching Detail Tugas Guru Failed', e.response?.data.toString() ?? '');
+        failedSnackbar('Fetching Detail Tugas Guru Failed',
+            e.response?.data.toString() ?? '');
       } else {
-        infoSnackbar(
-            'Fetching Detail Tugas Guru Failed', e.response?.data.toString() ?? '');
+        infoSnackbar('Fetching Detail Tugas Guru Failed',
+            e.response?.data.toString() ?? '');
       }
     } finally {
       detailTugasLoading.value = false;
       update();
+    }
+  }
+
+  Future<void> fetchDetailTugasSiswa() async {
+    detailTugasLoading.value = true;
+    try {
+      final response = await materiProvider.fetchDetailTugas(idTugas.value);
+
+      detailTugas.value = tugasFromJson(jsonEncode(response.data['tugas']));
+      detailTugasSiswa.value = response.data['tugassiswa'] == null
+          ? null
+          : tugasSiswaFromJson(jsonEncode(response.data['tugassiswa']));
+    } on dio.DioException catch (e) {
+      if (e.response?.statusCode == 500) {
+        failedSnackbar('Fetching Detail Tugas Siswa Failed',
+            e.response?.data.toString() ?? '');
+      } else {
+        infoSnackbar('Fetching Detail Tugas Siswa Failed',
+            e.response?.data.toString() ?? '');
+      }
+    } finally {
+      detailTugasLoading.value = false;
+      update();
+    }
+  }
+
+  void storeTugasGuru(BuildContext context) async {
+    final formData = dio.FormData.fromMap({
+      'guru_matpel_id': id.value,
+      'judul': judulTugasController.value.text,
+      'subjudul': subjudulTugasController.value.text,
+      'deskripsi': deskripsiTugasController.value.text,
+      'start_date': DateTime.now(),
+      'end_date': endTugasController.value.text,
+      'file_tugas': fileTugas.value == null
+          ? null
+          : await dio.MultipartFile.fromFile(fileTugas.value!.path),
+    });
+
+    showLoading(context);
+
+    try {
+      final response = await materiProvider.storeTugasGuru(formData);
+
+      successSnackbar('Tambah Tugas Berhasil', response.data['msg']);
+      Get.offAllNamed('/dashboard');
+    } on dio.DioException catch (e) {
+      Get.back();
+      if (e.response?.statusCode == 500) {
+        failedSnackbar('Tambah Tugas Gagal', e.response?.data.toString() ?? '');
+      } else {
+        infoSnackbar('Tambah Tugas Gagal', e.response?.data.toString() ?? '');
+      }
+    }
+  }
+
+  void storeNilai(idTugasSiswa, BuildContext context) async {
+    final formData = dio.FormData.fromMap({
+      'nilai': nilaiController.value.text,
+    });
+
+    showLoading(context);
+
+    try {
+      final response = await materiProvider.inputNilai(idTugasSiswa, formData);
+
+      successSnackbar('Input Nilai Berhasil', response.data['msg']);
+      Get.offAllNamed('/dashboard');
+    } on dio.DioException catch (e) {
+      Get.back();
+      if (e.response?.statusCode == 500) {
+        failedSnackbar('Input Nilai Gagal', e.response?.data.toString() ?? '');
+      } else {
+        infoSnackbar('Input Nilai Gagal', e.response?.data.toString() ?? '');
+      }
+    }
+  }
+
+  void storeTugasSiswa(BuildContext context) async {
+    final formData = dio.FormData.fromMap({
+      'file_tugas_siswa': fileTugasSiswa.value == null
+          ? null
+          : await dio.MultipartFile.fromFile(fileTugasSiswa.value?.path ?? ''),
+    });
+
+    showLoading(context);
+
+    try {
+      final response =
+          await materiProvider.storeTugasSiswa(idTugas.value, formData);
+
+      if (response.statusCode == 200) {
+        Get.back();
+        successSnackbar('Tugas Berhasil Dikumpulkan', response.data['msg']);
+        fileTugasSiswaController.value.clear();
+        fileTugasSiswa.value?.delete();
+        fetchDetailTugasSiswa();
+      }
+    } on dio.DioException catch (e) {
+      Get.back();
+      if (e.response?.statusCode == 500) {
+        failedSnackbar(
+            'Tugas Gagal Dikumpulan', e.response?.data.toString() ?? '');
+      } else {
+        infoSnackbar(
+            'Tugas Gagal Dikumpulan', e.response?.data.toString() ?? '');
+      }
+    }
+  }
+
+  Future<void> downloadMateri(file_materi) async {
+    final d = dio.Dio(dio.BaseOptions(baseUrl: ApiUrl.storageUrl));
+    var progress = 0.0.obs;
+    final dir = await getExternalStorageDirectory();
+    final saveDir = dir!.path + '/Download/File Materi';
+    final file = File('$saveDir/$file_materi');
+
+    try {
+      d.download(
+        '${StorageEndpoint.file_materi}/$file_materi',
+        file.path,
+        onReceiveProgress: (count, total) async {
+          progress.value = (count / total) * 100;
+
+          if (progress.value == 100.0) {
+            infoSnackbar('Download Materi Berhasil', file.path);
+            final result = await OpenFilex.open(file.path);
+            print(result.message);
+          }
+        },
+      );
+    } on dio.DioException catch (e) {
+      failedSnackbar('Download Failed', e.response?.data.toString() ?? '');
     }
   }
 }

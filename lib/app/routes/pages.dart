@@ -7,6 +7,9 @@ import 'package:elearning/app/modules/materi/guru/view.dart';
 import 'package:elearning/app/modules/materi/guru/widgets/detail_tugas.dart';
 import 'package:elearning/app/modules/materi/guru/widgets/edit_materiguru.dart';
 import 'package:elearning/app/modules/materi/guru/widgets/tambah_materiguru.dart';
+import 'package:elearning/app/modules/materi/guru/widgets/tambah_tugasguru.dart';
+import 'package:elearning/app/modules/materi/siswa/view.dart';
+import 'package:elearning/app/modules/materi/siswa/widgets/detail_tugas.dart';
 import 'package:elearning/app/modules/profile/binding.dart';
 import 'package:elearning/app/modules/profile/change_password/view.dart';
 import 'package:elearning/app/modules/profile/edit_profile/view.dart';
@@ -58,6 +61,11 @@ abstract class AppPages {
       binding: MateriBinding(),
     ),
     GetPage(
+      name: Routes.tambahtugasguru,
+      page: () => const TambahTugasGuruPage(),
+      binding: MateriBinding(),
+    ),
+    GetPage(
       name: Routes.editmateriguru,
       page: () => const EditMateriGuru(),
       binding: MateriBinding(),
@@ -65,6 +73,16 @@ abstract class AppPages {
     GetPage(
       name: Routes.detailtugasguru,
       page: () => const DetailTugasGuru(),
+      binding: MateriBinding(),
+    ),
+    GetPage(
+      name: Routes.materitugassiswa,
+      page: () => const MateriTugasSiswaPage(),
+      binding: MateriBinding(),
+    ),
+    GetPage(
+      name: Routes.detailtugassiswa,
+      page: () => const DetailTugasSiswa(),
       binding: MateriBinding(),
     ),
     

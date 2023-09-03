@@ -26,15 +26,21 @@ class AuthController extends GetxController {
 
     try {
       final response = await authProvider.login(formData);
-      sharedPreferences.setString('token', response.data['token']);
-      sharedPreferences.setInt('siswa_id', response.data['user']['id']);
-      sharedPreferences.setInt('user_id', response.data['user']['user']['id']);
-      sharedPreferences.setString(
-          'role', response.data['user']['user']['role']);
-      sharedPreferences.setString('password', passwordController.value.text);
 
-      successSnackbar('Log In Berhasil', response.data['msg']);
-      Get.offAllNamed('/dashboard');
+      if (response.data['user'] == 'admin') {
+        Get.back();
+        infoSnackbar('Mohon Maaf', response.data['msg']);
+      } else {
+        successSnackbar('Log In Berhasil', response.data['msg']);
+        sharedPreferences.setString('token', response.data['token']);
+        sharedPreferences.setInt('siswa_id', response.data['user']['id']);
+        sharedPreferences.setInt(
+            'user_id', response.data['user']['user']['id']);
+        sharedPreferences.setString(
+            'role', response.data['user']['user']['role']);
+        sharedPreferences.setString('password', passwordController.value.text);
+        Get.offAllNamed('/dashboard');
+      }
     } on dio.DioException catch (e) {
       Get.back();
       if (e.response?.statusCode == 500) {

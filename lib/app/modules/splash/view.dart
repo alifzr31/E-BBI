@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:elearning/app/components/base_text.dart';
+import 'package:elearning/app/core/values/colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -40,6 +40,7 @@ class _SplashPageState extends State<SplashPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: baseColor,
       body: Stack(
         children: [
           Center(
@@ -47,20 +48,33 @@ class _SplashPageState extends State<SplashPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const BaseText(
-                  text: 'E-Learning',
+                  text: 'E-BBI',
                   size: 24,
                   bold: FontWeight.w600,
+                  color: Colors.white,
                 ),
                 const BaseText(
                   text: 'SLB Negeri A Bandung',
                   size: 26,
                   bold: FontWeight.bold,
+                  color: Colors.white,
                 ),
-                const SizedBox(height: 40),
-                SvgPicture.asset(
-                  'assets/images/logo.svg',
-                  width: 300,
+                const SizedBox(height: 20),
+                Container(
+                  height: 250,
+                  width: 250,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    image: DecorationImage(
+                      image: Image.asset('assets/images/logo.png').image,
+                    ),
+                  ),
                 ),
+                // SvgPicture.asset(
+                //   'assets/images/logo.svg',
+                //   width: 300,
+                // ),
               ],
             ),
           ),
@@ -68,7 +82,9 @@ class _SplashPageState extends State<SplashPage> {
             bottom: 100,
             right: 0,
             left: 0,
-            child: Center(child: CupertinoActivityIndicator()),
+            child: Center(
+              child: CupertinoActivityIndicator(color: Colors.white),
+            ),
           ),
         ],
       ),

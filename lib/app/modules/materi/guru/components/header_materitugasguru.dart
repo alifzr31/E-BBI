@@ -34,8 +34,7 @@ class HeaderMateriGuru extends StatelessWidget {
                 if (value == 'tambahmateri') {
                   Get.toNamed('/tambahmateriguru');
                 } else {
-                  // Get.toNamed('/tambahtugasguru');
-                  print(value);
+                  Get.toNamed('/tambahtugasguru');
                 }
               },
               itemBuilder: (context) {

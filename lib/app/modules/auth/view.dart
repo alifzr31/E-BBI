@@ -1,7 +1,7 @@
 import 'package:elearning/app/components/base_text.dart';
+import 'package:elearning/app/core/values/colors.dart';
 import 'package:elearning/app/modules/auth/components/login_form.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 
 class AuthPage extends StatelessWidget {
@@ -10,6 +10,7 @@ class AuthPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: baseColor,
       body: SingleChildScrollView(
         child: SizedBox(
           height: Get.height,
@@ -17,20 +18,29 @@ class AuthPage extends StatelessWidget {
           child: Column(
             children: [
               Expanded(
-                child: Padding(
+                child: Container(
+                  height: 300,
+                  width: 300,
                   padding: const EdgeInsets.all(10),
-                  child: Center(
-                    child: SvgPicture.asset(
-                      'assets/images/login.svg',
-                      width: 300,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    image: DecorationImage(
+                      image: Image.asset('assets/images/logo.png').image,
                     ),
                   ),
                 ),
               ),
               Container(
-                height: 360,
+                height: 400,
                 width: Get.width,
-                color: const Color(0xFFFAFAFA),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFFFFBFF),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
+                  ),
+                ),
                 padding: const EdgeInsets.symmetric(
                   horizontal: 15,
                   vertical: 10,

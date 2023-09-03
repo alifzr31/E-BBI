@@ -16,7 +16,7 @@ class TugasSiswa {
     int? id;
     int? tugasId;
     int? siswaId;
-    dynamic nilai;
+    String? nilai;
     String? fileTugasSiswa;
     String? status;
     DateTime? createdAt;

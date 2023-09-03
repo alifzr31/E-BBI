@@ -18,6 +18,13 @@ class MateriProvider extends DioClient {
     );
   }
 
+  Future<Response> storeTugasGuru(FormData formData) async {
+    return await post(
+      EndPoint.storetugasguru,
+      data: formData,
+    );
+  }
+
   Future<Response> editMateriGuru(id, FormData formData) async {
     return await post(
       '${EndPoint.updatemateri}/$id',
@@ -31,5 +38,19 @@ class MateriProvider extends DioClient {
 
   Future<Response> fetchDetailTugas(idTugas) async {
     return await get('${EndPoint.detailtugas}/$idTugas');
+  }
+
+  Future<Response> inputNilai(idTugasSiswa, FormData formData) async {
+    return await post(
+      '${EndPoint.inputnilai}/$idTugasSiswa',
+      data: formData,
+    );
+  }
+
+  Future<Response> storeTugasSiswa(idTugas, FormData formData) async {
+    return await post(
+      '${EndPoint.storetugassiswa}/$idTugas',
+      data: formData,
+    );
   }
 }

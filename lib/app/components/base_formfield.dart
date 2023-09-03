@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class BaseFormField extends StatelessWidget {
   const BaseFormField({
@@ -11,6 +12,7 @@ class BaseFormField extends StatelessWidget {
     this.keyboardType,
     this.onTap,
     this.readOnly = false,
+    this.inputFormatters,
   }) : super(key: key);
 
   final String? label;
@@ -21,6 +23,7 @@ class BaseFormField extends StatelessWidget {
   final TextInputType? keyboardType;
   final void Function()? onTap;
   final bool readOnly;
+  final List<TextInputFormatter>? inputFormatters;
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +34,7 @@ class BaseFormField extends StatelessWidget {
       keyboardType: keyboardType,
       onTap: onTap,
       readOnly: readOnly,
+      inputFormatters: inputFormatters,
       decoration: InputDecoration(
         labelText: label,
         suffixIcon: suffixIcon,

@@ -4,20 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
-class ListTugasGuru extends StatefulWidget {
-  const ListTugasGuru({super.key});
+class ListTugasSiswa extends StatefulWidget {
+  const ListTugasSiswa({super.key});
 
   @override
-  State<ListTugasGuru> createState() => _ListTugasGuruState();
+  State<ListTugasSiswa> createState() => _ListTugasSiswaState();
 }
 
-class _ListTugasGuruState extends State<ListTugasGuru> {
+class _ListTugasSiswaState extends State<ListTugasSiswa> {
   final controller = Get.find<MateriController>();
-  final arguments = Get.arguments;
 
   @override
   void initState() {
-    controller.fetchTugasGuru();
+    controller.fetchTugasSiswa();
     super.initState();
   }
 
@@ -27,24 +26,22 @@ class _ListTugasGuruState extends State<ListTugasGuru> {
       () => controller.tugasLoading.value
           ? const Center(child: CircularProgressIndicator())
           : ListView.builder(
-              padding: const EdgeInsets.fromLTRB(10, 15, 10, 10),
+              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
               itemCount: controller.tugas.length,
               itemBuilder: (context, index) {
                 final tugas = controller.tugas[index];
-                final formatter = DateFormat('dd MMMM yyyy HH:mm');
-                final startDate =
-                    formatter.format(tugas.startDate ?? DateTime(0000));
-                final endDate =
-                    formatter.format(tugas.endDate ?? DateTime(0000));
+                final formatter = DateFormat('E, dd MMMM yyyy');
+                final startDate = formatter.format(tugas.startDate ?? DateTime(0000));
+                final endDate = formatter.format(tugas.endDate ?? DateTime(0000));
 
                 return BaseCardContent(
-                  author: arguments,
+                  author: controller.namaGuru.value,
                   date: '$startDate - $endDate',
                   title: tugas.judul ?? '',
                   subtitle: tugas.subjudul ?? '',
                   onPressed: () {
                     controller.idTugas.value = tugas.id.toString();
-                    Get.toNamed('/detailtugasguru');
+                    Get.toNamed('/detailtugassiswa');
                   },
                 );
               },

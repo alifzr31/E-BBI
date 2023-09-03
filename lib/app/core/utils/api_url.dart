@@ -1,7 +1,9 @@
 class ApiUrl {
-  // static const String baseUrl = 'http://192.168.1.11:8000/api';
-  static const String baseUrl = 'http://10.1.1.157:8000/api';
+  static const String baseUrl = 'http://192.168.1.11:8000/api';
+  static const String storageUrl = 'http://192.168.1.11:8000/storage';
+  // static const String baseUrl = 'http://10.1.1.157:8000/api';
   static EndPoint endPoint = EndPoint();
+  static StorageEndpoint storageEndpoint = StorageEndpoint();
 }
 
 class EndPoint {
@@ -18,5 +20,13 @@ class EndPoint {
   static const String updatemateri = '/updatemateri';
 
   static const String indextugasguru = '/indextugasperpelajaran';
+  static const String storetugasguru = '/storetugasguru';
   static const String detailtugas = '/detailtugas';
+  static const String inputnilai = '/inputnilai';
+
+  static const String storetugassiswa = '/storetugassiswa';
+}
+
+class StorageEndpoint {
+  static const String file_materi = '/file_materi';
 }
