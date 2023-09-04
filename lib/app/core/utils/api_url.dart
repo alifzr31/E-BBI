@@ -25,6 +25,9 @@ class EndPoint {
   static const String inputnilai = '/inputnilai';
 
   static const String storetugassiswa = '/storetugassiswa';
+
+  static const String getOneLicon = '/getonelicon';
+  static const String storelicon = '/storelicon';
 }
 
 class StorageEndpoint {

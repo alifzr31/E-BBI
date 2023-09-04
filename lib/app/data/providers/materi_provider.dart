@@ -53,4 +53,15 @@ class MateriProvider extends DioClient {
       data: formData,
     );
   }
+
+  Future<Response> fetchOneLicon(idGuruMatpel) async {
+    return await get('${EndPoint.getOneLicon}/$idGuruMatpel');
+  }
+
+  Future<Response> storelicon(idGuruMatpel, FormData formData) async {
+    return await post(
+      '${EndPoint.storelicon}/$idGuruMatpel',
+      data: formData,
+    );
+  }
 }

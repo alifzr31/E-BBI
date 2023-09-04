@@ -1,13 +1,28 @@
+import 'package:elearning/app/components/base_button.dart';
+import 'package:elearning/app/components/base_formfield.dart';
 import 'package:elearning/app/components/base_headerpage.dart';
 import 'package:elearning/app/components/base_text.dart';
+import 'package:elearning/app/core/values/colors.dart';
 import 'package:elearning/app/modules/materi/controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:icons_plus/icons_plus.dart';
 
-class HeaderMateriGuru extends StatelessWidget {
-  HeaderMateriGuru({super.key});
+class HeaderMateriGuru extends StatefulWidget {
+  const HeaderMateriGuru({super.key});
+
+  @override
+  State<HeaderMateriGuru> createState() => _HeaderMateriGuruState();
+}
+
+class _HeaderMateriGuruState extends State<HeaderMateriGuru> {
   final controller = Get.find<MateriController>();
+
+  @override
+  void initState() {
+    controller.fetchOneLicon();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +33,53 @@ class HeaderMateriGuru extends StatelessWidget {
         actionWidget: Row(
           children: [
             IconButton(
-              onPressed: () {},
+              onPressed: () {
+                if (controller.licon.value?.status == 'aktif') {
+                  print('Berlangsung');
+                } else {
+                  Get.bottomSheet(
+                    backgroundColor: Colors.white,
+                    Container(
+                      height: 200,
+                      width: Get.width,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 15, vertical: 10),
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              children: [
+                                BaseText(
+                                  text: 'Buat Room\nLive Conference',
+                                  textAlign: TextAlign.center,
+                                  size: 18,
+                                  bold: FontWeight.w600,
+                                ),
+                                const SizedBox(height: 10),
+                                BaseFormField(
+                                  label: 'Judul Live Conference',
+                                  controller: controller.judulLiconController.value,
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(
+                            width: Get.width,
+                            child: BaseButton(
+                              bgColor: baseColor,
+                              fgColor: Colors.white,
+                              label: 'Mulai Live Conference',
+                              onPressed: () {
+                                controller.storeLicon(context);
+                              },
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  );
+                }
+              },
               color: Colors.white,
               tooltip: 'Mulai live conference',
               icon: const Icon(HeroIcons.video_camera),

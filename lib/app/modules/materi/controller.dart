@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:elearning/app/core/utils/api_url.dart';
 import 'package:elearning/app/core/values/show_loading.dart';
 import 'package:elearning/app/core/values/show_snackbars.dart';
+import 'package:elearning/app/data/models/licon.dart';
 import 'package:elearning/app/data/models/materi.dart';
 import 'package:elearning/app/data/models/tugas.dart';
 import 'package:elearning/app/data/models/tugas_siswa.dart';
@@ -70,6 +71,10 @@ class MateriController extends GetxController {
 
   final fileTugasSiswa = Rx<File?>(null);
   final fileTugasSiswaController = TextEditingController().obs;
+
+  final licon = Rx<Licon?>(null);
+  final liconLoading = false.obs;
+  final judulLiconController = TextEditingController().obs;
 
   @override
   void onInit() async {
@@ -419,6 +424,54 @@ class MateriController extends GetxController {
       } else {
         infoSnackbar(
             'Tugas Gagal Dikumpulan', e.response?.data.toString() ?? '');
+      }
+    }
+  }
+
+  Future<void> fetchOneLicon() async {
+    liconLoading.value = true;
+    try {
+      final response = await materiProvider.fetchOneLicon(id.value);
+      licon.value = response.data['data'] == null
+          ? null
+          : liconFromJson(jsonEncode(response.data['data']));
+    } on dio.DioException catch (e) {
+      if (e.response?.statusCode == 500) {
+        failedSnackbar(
+            'Fetching Licon Failed', e.response?.data.toString() ?? '');
+      } else {
+        infoSnackbar(
+            'Fetching Licon Failed', e.response?.data.toString() ?? '');
+      }
+    } finally {
+      liconLoading.value = false;
+      update();
+    }
+  }
+
+  void storeLicon(BuildContext context) async {
+    final formData = dio.FormData.fromMap({
+      'judul': judulLiconController.value.text,
+    });
+
+    showLoading(context);
+
+    try {
+      final response = await materiProvider.storelicon(id.value, formData);
+
+      if (response.statusCode == 200) {
+        Get.back();
+        Get.back();
+        judulLiconController.value.clear();
+        fetchOneLicon();
+        successSnackbar('Buat Room Berhasil', response.data['msg']);
+      }
+    } on dio.DioException catch (e) {
+      Get.back();
+      if (e.response?.statusCode == 500) {
+        failedSnackbar('Buat Room Gagal', e.response?.data.toString() ?? '');
+      } else {
+        infoSnackbar('Buat Room Gagal', e.response?.data.toString() ?? '');
       }
     }
   }
