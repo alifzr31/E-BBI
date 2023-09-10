@@ -38,7 +38,7 @@ class _BodyMateriTugasSiswaState extends State<BodyMateriTugasSiswa>
             dividerColor: Colors.transparent,
             indicatorColor: baseColor.withOpacity(0.99),
             controller: tabController,
-            tabs: [
+            tabs: const [
               BaseText(text: 'Materi'),
               BaseText(text: 'Tugas'),
             ],

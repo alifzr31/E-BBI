@@ -2,6 +2,8 @@ import 'package:elearning/app/components/base_bodypage.dart';
 import 'package:elearning/app/components/base_button.dart';
 import 'package:elearning/app/components/base_cardcontent.dart';
 import 'package:elearning/app/components/base_formfield.dart';
+import 'package:elearning/app/components/base_nodata.dart';
+import 'package:elearning/app/components/base_refresh.dart';
 import 'package:elearning/app/components/base_text.dart';
 import 'package:elearning/app/core/values/colors.dart';
 import 'package:elearning/app/modules/materi/controller.dart';
@@ -78,7 +80,10 @@ class _BodyDetailTugasState extends State<BodyDetailTugas>
                                   ),
                                 ),
                                 InkWell(
-                                  onTap: () {},
+                                  onTap: () {
+                                    controller.downloadTugas(controller
+                                        .detailTugas.value?.fileTugas);
+                                  },
                                   child: Container(
                                     width: Get.width,
                                     margin: const EdgeInsets.symmetric(
@@ -124,121 +129,165 @@ class _BodyDetailTugasState extends State<BodyDetailTugas>
                               ],
                             ),
                           ),
-                          ListView.builder(
-                            padding: const EdgeInsets.fromLTRB(10, 15, 10, 10),
-                            itemCount: controller.tugasSiswa.length,
-                            itemBuilder: (context, index) {
-                              final tugassiswa = controller.tugasSiswa[index];
-                              final date = formatter.format(
-                                  tugassiswa.createdAt ?? DateTime(0000));
+                          controller.tugasSiswa.isEmpty
+                              ? BaseNoData(
+                                  label:
+                                      'Belum ada siswa yang mengumpulkan tugas',
+                                  onPressed: () {
+                                    controller.fetchDetailTugasGuru();
+                                  },
+                                )
+                              : BaseRefresh(
+                                  onRefresh: () async {
+                                    await Future.delayed(
+                                        const Duration(milliseconds: 2500), () {
+                                      controller.fetchDetailTugasGuru();
+                                    });
+                                  },
+                                  child: ListView.builder(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        10, 15, 10, 10),
+                                    itemCount: controller.tugasSiswa.length,
+                                    itemBuilder: (context, index) {
+                                      final tugassiswa =
+                                          controller.tugasSiswa[index];
+                                      final date = formatter.format(
+                                          tugassiswa.createdAt ??
+                                              DateTime(0000));
 
-                              return BaseCardTugasSiswa(
-                                author: tugassiswa.siswa?.nama ?? '',
-                                date: date,
-                                fileName: tugassiswa.fileTugasSiswa ?? '',
-                                keterangan: tugassiswa.status == 'ontime'
-                                    ? 'Tepat Waktu'
-                                    : tugassiswa.status == 'late'
-                                        ? 'Terlambat'
-                                        : 'Belum Mengumpulkan',
-                                nilai: tugassiswa.nilai == null
-                                    ? '-'
-                                    : tugassiswa.nilai ?? '',
-                                keteranganColor: tugassiswa.status == 'ontime'
-                                    ? Colors.green
-                                    : tugassiswa.status == 'late'
-                                        ? Colors.red
-                                        : Colors.grey.shade600,
-                                onTapFile: () {},
-                                button: tugassiswa.nilai == null
-                                    ? SizedBox(
-                                        height: 30,
-                                        width: Get.width,
-                                        child: BaseButton(
-                                          label: 'Beri Nilai',
-                                          bgColor: baseColor,
-                                          fgColor: Colors.white,
-                                          onPressed: () {
-                                            Get.bottomSheet(
-                                              backgroundColor: Colors.white,
-                                              SizedBox(
-                                                height: 230,
+                                      return BaseCardTugasSiswa(
+                                        author: tugassiswa.siswa?.nama ?? '',
+                                        date: date,
+                                        fileName:
+                                            tugassiswa.fileTugasSiswa ?? '',
+                                        keterangan:
+                                            tugassiswa.status == 'ontime'
+                                                ? 'Tepat Waktu'
+                                                : tugassiswa.status == 'late'
+                                                    ? 'Terlambat'
+                                                    : 'Belum Mengumpulkan',
+                                        nilai: tugassiswa.nilai == null
+                                            ? '-'
+                                            : tugassiswa.nilai ?? '',
+                                        keteranganColor:
+                                            tugassiswa.status == 'ontime'
+                                                ? Colors.green
+                                                : tugassiswa.status == 'late'
+                                                    ? Colors.red
+                                                    : Colors.grey.shade600,
+                                        onTapFile: () {
+                                          controller.downloadTugasSiswa(
+                                              tugassiswa.fileTugasSiswa);
+                                        },
+                                        button: tugassiswa.nilai == null
+                                            ? SizedBox(
+                                                height: 30,
                                                 width: Get.width,
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(15),
-                                                  child: Column(
-                                                    children: [
-                                                      BaseText(
-                                                        text:
-                                                            'Beri Nilai Tugas',
-                                                        size: 18,
-                                                        bold: FontWeight.bold,
-                                                      ),
-                                                      BaseText(
-                                                        text: tugassiswa
-                                                                .siswa?.nama ??
-                                                            '',
-                                                        bold: FontWeight.w600,
-                                                      ),
-                                                      Expanded(
-                                                        child: Form(
-                                                          key: controller.formKeyBeriNilai.value,
+                                                child: BaseButton(
+                                                  label: 'Beri Nilai',
+                                                  bgColor: baseColor,
+                                                  fgColor: Colors.white,
+                                                  onPressed: () {
+                                                    Get.bottomSheet(
+                                                      backgroundColor:
+                                                          Colors.white,
+                                                      SizedBox(
+                                                        height: 230,
+                                                        width: Get.width,
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(15),
                                                           child: Column(
-                                                            mainAxisAlignment: MainAxisAlignment.end,
                                                             children: [
-                                                              BaseFormField(
-                                                                label: 'Nilai',
-                                                                controller: controller.nilaiController.value,
-                                                                keyboardType: TextInputType.number,
-                                                                inputFormatters: [
-                                                                  FilteringTextInputFormatter.digitsOnly,
-                                                                  LengthLimitingTextInputFormatter(2),
-                                                                ],
-                                                                validator: (value) {
-                                                                  if (value!.isEmpty) {
-                                                                    return 'Masukkan nilai';
-                                                                  }
-                                                                  
-                                                                  return null;
-                                                                },
+                                                              BaseText(
+                                                                text:
+                                                                    'Beri Nilai Tugas',
+                                                                size: 18,
+                                                                bold: FontWeight
+                                                                    .bold,
                                                               ),
-                                                              const SizedBox(height: 10),
-                                                              SizedBox(
-                                                                width:
-                                                                    Get.width,
-                                                                child:
-                                                                    BaseButton(
-                                                                  bgColor:
-                                                                      baseColor,
-                                                                  fgColor: Colors
-                                                                      .white,
-                                                                  label:
-                                                                      'Input Nilai',
-                                                                  onPressed:
-                                                                      () {
-                                                                        if (controller.formKeyBeriNilai.value.currentState!.validate()) {
-                                                                          controller.storeNilai(tugassiswa.id, context);
-                                                                        }
-                                                                      },
+                                                              BaseText(
+                                                                text: tugassiswa
+                                                                        .siswa
+                                                                        ?.nama ??
+                                                                    '',
+                                                                bold: FontWeight
+                                                                    .w600,
+                                                              ),
+                                                              Expanded(
+                                                                child: Form(
+                                                                  key: controller
+                                                                      .formKeyBeriNilai
+                                                                      .value,
+                                                                  child: Column(
+                                                                    mainAxisAlignment:
+                                                                        MainAxisAlignment
+                                                                            .end,
+                                                                    children: [
+                                                                      BaseFormField(
+                                                                        label:
+                                                                            'Nilai',
+                                                                        controller: controller
+                                                                            .nilaiController
+                                                                            .value,
+                                                                        keyboardType:
+                                                                            TextInputType.number,
+                                                                        inputFormatters: [
+                                                                          FilteringTextInputFormatter
+                                                                              .digitsOnly,
+                                                                          LengthLimitingTextInputFormatter(
+                                                                              2),
+                                                                        ],
+                                                                        validator:
+                                                                            (value) {
+                                                                          if (value!
+                                                                              .isEmpty) {
+                                                                            return 'Masukkan nilai';
+                                                                          }
+
+                                                                          return null;
+                                                                        },
+                                                                      ),
+                                                                      const SizedBox(
+                                                                          height:
+                                                                              10),
+                                                                      SizedBox(
+                                                                        width: Get
+                                                                            .width,
+                                                                        child:
+                                                                            BaseButton(
+                                                                          bgColor:
+                                                                              baseColor,
+                                                                          fgColor:
+                                                                              Colors.white,
+                                                                          label:
+                                                                              'Input Nilai',
+                                                                          onPressed:
+                                                                              () {
+                                                                            if (controller.formKeyBeriNilai.value.currentState!.validate()) {
+                                                                              controller.storeNilai(tugassiswa.id, context);
+                                                                            }
+                                                                          },
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
                                                                 ),
                                                               ),
                                                             ],
                                                           ),
                                                         ),
                                                       ),
-                                                    ],
-                                                  ),
+                                                    );
+                                                  },
                                                 ),
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      )
-                                    : Container(),
-                              );
-                            },
-                          ),
+                                              )
+                                            : Container(),
+                                      );
+                                    },
+                                  ),
+                                ),
                         ],
                       ),
                     ),

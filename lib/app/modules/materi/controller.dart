@@ -9,6 +9,7 @@ import 'package:elearning/app/data/models/materi.dart';
 import 'package:elearning/app/data/models/tugas.dart';
 import 'package:elearning/app/data/models/tugas_siswa.dart';
 import 'package:elearning/app/data/providers/materi_provider.dart';
+import 'package:elearning/app/modules/meeting/controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:open_filex/open_filex.dart';
@@ -30,6 +31,7 @@ class MateriController extends GetxController {
   final namaMatpel = ''.obs;
   final kelas = ''.obs;
   final namaGuru = ''.obs;
+  final idKelas = Rx<int?>(null);
 
   final detailMateri = Rx<Materi?>(null);
   final detailMateriLoading = false.obs;
@@ -76,18 +78,20 @@ class MateriController extends GetxController {
   final liconLoading = false.obs;
   final judulLiconController = TextEditingController().obs;
 
+  final idLicon = ''.obs;
+
   @override
   void onInit() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     role.value = sharedPreferences.getString('role') ?? '';
 
-    if (role.value == 'siswa') {
-      fetchMateriSiswa();
-      fetchTugasSiswa();
-    } else {
-      fetchTugasGuru();
-      fetchMateriGuru();
-    }
+    // if (role.value == 'siswa') {
+    //   fetchMateriSiswa();
+    //   fetchTugasSiswa();
+    // } else {
+    //   fetchTugasGuru();
+    //   fetchMateriGuru();
+    // }
     super.onInit();
   }
 
@@ -121,6 +125,7 @@ class MateriController extends GetxController {
       namaMatpel.value = response.data['data']['matpel']['nama_matpel'];
       kelas.value =
           '${response.data['data']['kelas']['kls_angka']}${response.data['data']['kelas']['kls_huruf']}';
+      idKelas.value = response.data['data']['kelas_id'];
 
       final List<Materi> body = response.data['data']['materi'] == null
           ? []
@@ -190,6 +195,7 @@ class MateriController extends GetxController {
   void storeMateriGuru(BuildContext context) async {
     final formData = dio.FormData.fromMap({
       'guru_matpel_id': id.value,
+      'kelas_id': idKelas.value,
       'judul': judulTambahController.value.text,
       'subjudul': subjudulTambahController.value.text,
       'deskripsi': deskripsiTambahController.value.text,
@@ -347,6 +353,7 @@ class MateriController extends GetxController {
   void storeTugasGuru(BuildContext context) async {
     final formData = dio.FormData.fromMap({
       'guru_matpel_id': id.value,
+      'kelas_id': idKelas.value,
       'judul': judulTugasController.value.text,
       'subjudul': subjudulTugasController.value.text,
       'deskripsi': deskripsiTugasController.value.text,
@@ -461,10 +468,14 @@ class MateriController extends GetxController {
 
       if (response.statusCode == 200) {
         Get.back();
-        Get.back();
-        judulLiconController.value.clear();
         fetchOneLicon();
         successSnackbar('Buat Room Berhasil', response.data['msg']);
+        final meetingController = Get.put(MeetingController());
+        final judul = judulLiconController.value.text.replaceAll(' ', '');
+        idLicon.value = licon.value?.id.toString() ?? '';
+        meetingController.roomName.value = judul;
+        meetingController.joinMeeting(context);
+        judulLiconController.value.clear();
       }
     } on dio.DioException catch (e) {
       Get.back();
@@ -472,6 +483,24 @@ class MateriController extends GetxController {
         failedSnackbar('Buat Room Gagal', e.response?.data.toString() ?? '');
       } else {
         infoSnackbar('Buat Room Gagal', e.response?.data.toString() ?? '');
+      }
+    }
+  }
+
+  Future<void> selesaiLicon() async {
+    try {
+      final response = await materiProvider.selesaiLicon(idLicon.value);
+
+      if (response.statusCode == 200) {
+        Get.back();
+        successSnackbar('Live Conference Selesai', response.data['msg']);
+      }
+    } on dio.DioException catch (e) {
+      if (e.response?.statusCode == 500) {
+        failedSnackbar(
+            'Selesai Licon Gagal', e.response?.data.toString() ?? '');
+      } else {
+        infoSnackbar('Selesai Licon Gagal', e.response?.data.toString() ?? '');
       }
     }
   }
@@ -492,6 +521,58 @@ class MateriController extends GetxController {
 
           if (progress.value == 100.0) {
             infoSnackbar('Download Materi Berhasil', file.path);
+            final result = await OpenFilex.open(file.path);
+            print(result.message);
+          }
+        },
+      );
+    } on dio.DioException catch (e) {
+      failedSnackbar('Download Failed', e.response?.data.toString() ?? '');
+    }
+  }
+
+  Future<void> downloadTugas(file_tugas) async {
+    final d = dio.Dio(dio.BaseOptions(baseUrl: ApiUrl.storageUrl));
+    var progress = 0.0.obs;
+    final dir = await getExternalStorageDirectory();
+    final saveDir = dir!.path + '/Download/File Tugas';
+    final file = File('$saveDir/$file_tugas');
+
+    try {
+      d.download(
+        '${StorageEndpoint.file_tugas}/$file_tugas',
+        file.path,
+        onReceiveProgress: (count, total) async {
+          progress.value = (count / total) * 100;
+
+          if (progress.value == 100.0) {
+            infoSnackbar('Download Tugas Berhasil', file.path);
+            final result = await OpenFilex.open(file.path);
+            print(result.message);
+          }
+        },
+      );
+    } on dio.DioException catch (e) {
+      failedSnackbar('Download Failed', e.response?.data.toString() ?? '');
+    }
+  }
+
+  Future<void> downloadTugasSiswa(file_tugas_siswa) async {
+    final d = dio.Dio(dio.BaseOptions(baseUrl: ApiUrl.storageUrl));
+    var progress = 0.0.obs;
+    final dir = await getExternalStorageDirectory();
+    final saveDir = dir!.path + '/Download/File Tugas Siswa';
+    final file = File('$saveDir/$file_tugas_siswa');
+
+    try {
+      d.download(
+        '${StorageEndpoint.file_tugas_siswa}/$file_tugas_siswa',
+        file.path,
+        onReceiveProgress: (count, total) async {
+          progress.value = (count / total) * 100;
+
+          if (progress.value == 100.0) {
+            infoSnackbar('Download Tugas Berhasil', file.path);
             final result = await OpenFilex.open(file.path);
             print(result.message);
           }

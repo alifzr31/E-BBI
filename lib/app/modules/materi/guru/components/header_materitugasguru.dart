@@ -4,6 +4,7 @@ import 'package:elearning/app/components/base_headerpage.dart';
 import 'package:elearning/app/components/base_text.dart';
 import 'package:elearning/app/core/values/colors.dart';
 import 'package:elearning/app/modules/materi/controller.dart';
+import 'package:elearning/app/modules/meeting/controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:icons_plus/icons_plus.dart';
@@ -34,8 +35,14 @@ class _HeaderMateriGuruState extends State<HeaderMateriGuru> {
           children: [
             IconButton(
               onPressed: () {
-                if (controller.licon.value?.status == 'aktif') {
-                  print('Berlangsung');
+                if (controller.licon.value?.status == 'aktif' || controller.licon.value?.endDate == null) {
+                  final meetingController = Get.put(MeetingController());
+                  final judul =
+                      controller.licon.value?.judul?.replaceAll(' ', '');
+                  controller.idLicon.value =
+                      controller.licon.value?.id.toString() ?? '';
+                  meetingController.roomName.value = judul ?? '';
+                  meetingController.joinMeeting(context);
                 } else {
                   Get.bottomSheet(
                     backgroundColor: Colors.white,
@@ -58,7 +65,8 @@ class _HeaderMateriGuruState extends State<HeaderMateriGuru> {
                                 const SizedBox(height: 10),
                                 BaseFormField(
                                   label: 'Judul Live Conference',
-                                  controller: controller.judulLiconController.value,
+                                  controller:
+                                      controller.judulLiconController.value,
                                 ),
                               ],
                             ),

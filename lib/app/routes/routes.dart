@@ -16,4 +16,7 @@ class Routes {
   // MATERI & TUGAS SISWA
   static const String materitugassiswa = '/materitugassiswa';
   static const String detailtugassiswa = '/detailtugassiswa';
+
+  // MEETING
+  static const String meeting = '/meeting';
 }

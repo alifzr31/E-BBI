@@ -50,6 +50,7 @@ dependencies:
   date_time_picker: ^2.1.0
   path_provider: ^2.1.1
   open_filex: ^4.3.2
+  jitsi_meet_wrapper: ^0.2.0+1
 
 dev_dependencies:
   flutter_test:

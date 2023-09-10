@@ -64,4 +64,8 @@ class MateriProvider extends DioClient {
       data: formData,
     );
   }
+
+  Future<Response> selesaiLicon(idLicon) async {
+    return await get('${EndPoint.selesailicon}/$idLicon');
+  }
 }

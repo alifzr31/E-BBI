@@ -8,12 +8,12 @@ class MateriTugasSiswaPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       backgroundColor: baseColor,
       body: Column(
         children: [
           HeaderMateriTugasSiswa(),
-          const BodyMateriTugasSiswa(),
+          BodyMateriTugasSiswa(),
         ],
       ),
     );
