@@ -35,15 +35,7 @@ class _HeaderMateriGuruState extends State<HeaderMateriGuru> {
           children: [
             IconButton(
               onPressed: () {
-                if (controller.licon.value?.status == 'aktif' || controller.licon.value?.endDate == null) {
-                  final meetingController = Get.put(MeetingController());
-                  final judul =
-                      controller.licon.value?.judul?.replaceAll(' ', '');
-                  controller.idLicon.value =
-                      controller.licon.value?.id.toString() ?? '';
-                  meetingController.roomName.value = judul ?? '';
-                  meetingController.joinMeeting(context);
-                } else {
+                if (controller.licon.value == null) {
                   Get.bottomSheet(
                     backgroundColor: Colors.white,
                     Container(
@@ -86,6 +78,60 @@ class _HeaderMateriGuruState extends State<HeaderMateriGuru> {
                       ),
                     ),
                   );
+                } else {
+                  if (controller.licon.value?.status == 'aktif' ||
+                      controller.licon.value?.endDate == null) {
+                    final meetingController = Get.put(MeetingController());
+                    final judul =
+                        controller.licon.value?.judul?.replaceAll(' ', '');
+                    controller.idLicon.value =
+                        controller.licon.value?.id.toString() ?? '';
+                    meetingController.roomName.value = judul ?? '';
+                    meetingController.joinMeeting(context);
+                  } else {
+                    Get.bottomSheet(
+                      backgroundColor: Colors.white,
+                      Container(
+                        height: 200,
+                        width: Get.width,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 15, vertical: 10),
+                        child: Column(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                children: [
+                                  BaseText(
+                                    text: 'Buat Room\nLive Conference',
+                                    textAlign: TextAlign.center,
+                                    size: 18,
+                                    bold: FontWeight.w600,
+                                  ),
+                                  const SizedBox(height: 10),
+                                  BaseFormField(
+                                    label: 'Judul Live Conference',
+                                    controller:
+                                        controller.judulLiconController.value,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(
+                              width: Get.width,
+                              child: BaseButton(
+                                bgColor: baseColor,
+                                fgColor: Colors.white,
+                                label: 'Mulai Live Conference',
+                                onPressed: () {
+                                  controller.storeLicon(context);
+                                },
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    );
+                  }
                 }
               },
               color: Colors.white,
