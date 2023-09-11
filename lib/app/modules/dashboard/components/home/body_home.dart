@@ -69,7 +69,7 @@ class _BodyHomeState extends State<BodyHome>
                             : controller.role.value == 'siswa'
                                 ? materiSiswa()
                                 : materiGuru(),
-                        controller.materi.isEmpty
+                        controller.tugas.isEmpty
                             ? BaseNoData(
                                 label: 'Belum ada tugas',
                                 onPressed: () {
@@ -139,7 +139,7 @@ class _BodyHomeState extends State<BodyHome>
           final date = formatter.format(materi.createdAt ?? DateTime(0000));
 
           return BaseCardContent(
-            author: controller.profileGuru.value?.nama ?? '',
+            author: materi.gurumatpel?.guru?.nama ?? '',
             date: date,
             title: materi.gurumatpel?.matpel?.namaMatpel ?? '',
             subtitle: materi.judul ?? '',
